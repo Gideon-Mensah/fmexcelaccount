@@ -180,6 +180,247 @@ This model utilizes VBA, so you'll need to enable the Developer tab in Excel to 
               Next j
           Next i
         End Sub
+        Sub CreateProfitAndLossFromTrialBalance()
+        Dim wsTrialBalance As Worksheet
+        Dim wsPL As Worksheet
+        Dim lastRow As Long
+        Dim revenueTotal As Double
+        Dim costOfSalesTotal As Double
+        Dim expensesTotal As Double
+        Dim grossProfit As Double
+        Dim netProfit As Double
+        Dim rowOffset As Long
+        Dim chartOfAccount As String
+        Dim accountName As String
+        Dim debitAmount As Double
+        Dim creditAmount As Double
+        Dim accountType As String
+        ' Set the worksheet containing the trial balance
+        Set wsTrialBalance = ThisWorkbook.Sheets("TrialBalance") ' Change this to your trial balance sheet name
+        ' Set the existing worksheet where the P&L will be inserted
+        Set wsPL = ThisWorkbook.Sheets("Profit or Loss ac") ' Adjust this to your P&L sheet name
+        ' Clear previous P&L data if necessary
+        ' wsPL.Cells.Clear
+        wsPL.Rows("5:" & wsPL.Rows.Count).ClearContents
+        ' Initialize totals
+        revenueTotal = 0
+        costOfSalesTotal = 0
+        expensesTotal = 0
+        ' Get the last row of the trial balance
+        lastRow = wsTrialBalance.Cells(wsTrialBalance.Rows.Count, "B").End(xlUp).Row
+        ' Define starting row for the P&L statement in the existing sheet
+        rowOffset = 4
+        ' Write headers for the P&L
+        ' wsPL.Cells(1, 1).Value = "Profit and Loss Account"
+        ' wsPL.Cells(rowOffset, 1).Value = "Description"
+        ' wsPL.Cells(rowOffset, 2).Value = "Amount"
+        rowOffset = rowOffset + 1
+        ' Loop through the trial balance and categorize accounts
+        For i = 4 To lastRow ' Assuming data starts in row 2
+        chartOfAccount = wsTrialBalance.Cells(i, 2).Value ' Adjust for the correct column containing Chart of Account
+        accountName = wsTrialBalance.Cells(i, 3).Value ' Adjust for the correct column containing account names
+        debitAmount = wsTrialBalance.Cells(i, 4).Value ' Assuming debit column is column C
+        creditAmount = wsTrialBalance.Cells(i, 5).Value ' Assuming credit column is column D
+        ' Check if the account belongs to Revenue, Cost of Sales, or Expenses
+        accountType = GetAccountTypeByChart(chartOfAccount) 
+        Select Case accountType
+            Case "Revenue"
+                wsPL.Cells(rowOffset, 1).Value = "Revenue:"
+                rowOffset = rowOffset + 1
+                wsPL.Cells(rowOffset, 1).Value = accountName
+                wsPL.Cells(rowOffset, 2).Value = creditAmount
+                revenueTotal = revenueTotal + creditAmount
+                rowOffset = rowOffset + 1      
+                wsPL.Cells(rowOffset, 1).Font.Bold = False
+                wsPL.Cells(rowOffset, 2).Font.Bold = False 
+            Case "Cost of Sales"
+                wsPL.Cells(rowOffset, 1).Value = "Cost of Sales:"
+                rowOffset = rowOffset + 1
+                wsPL.Cells(rowOffset, 1).Value = accountName
+                wsPL.Cells(rowOffset, 2).Value = debitAmount
+                costOfSalesTotal = costOfSalesTotal + debitAmount
+                rowOffset = rowOffset + 1    
+                wsPL.Cells(rowOffset, 1).Font.Bold = False
+                wsPL.Cells(rowOffset, 2).Font.Bold = False   
+                ' Calculate Gross Profit
+                grossProfit = revenueTotal - costOfSalesTotal
+                ' Write Gross Profit
+                rowOffset = rowOffset + 1
+                wsPL.Cells(rowOffset, 1).Value = "Gross Profit"
+                wsPL.Cells(rowOffset, 2).Value = grossProfit
+                wsPL.Cells(rowOffset, 1).Font.Bold = True
+                wsPL.Cells(rowOffset, 2).Font.Bold = True
+                rowOffset = rowOffset + 1
+              Case "Expenses"
+                wsPL.Cells(rowOffset, 1).Value = "Expenses:"
+                rowOffset = rowOffset + 1
+                wsPL.Cells(rowOffset, 1).Value = accountName
+                wsPL.Cells(rowOffset, 2).Value = debitAmount
+                expensesTotal = expensesTotal + debitAmount
+                rowOffset = rowOffset + 1 
+                wsPL.Cells(rowOffset, 1).Font.Bold = False
+                wsPL.Cells(rowOffset, 2).Font.Bold = False  
+                ' Calculate Net Profit
+                netProfit = revenueTotal - expensesTotal - costOfSalesTotal
+                ' Write Net Profit
+                rowOffset = rowOffset + 1
+                wsPL.Cells(rowOffset, 1).Value = "Net Profit"
+                wsPL.Cells(rowOffset, 2).Value = netProfit
+                wsPL.Cells(rowOffset, 1).Font.Bold = True
+                wsPL.Cells(rowOffset, 2).Font.Bold = True    
+            End Select
+        Next i
+        'MsgBox "Profit and Loss Account created successfully!", vbInformation
+        End Sub
+        ' Function to categorize accounts by Chart of Account (Revenue, Cost of Sales, Expenses)
+        Function GetAccountTypeByChart(chartOfAccount As String) As String
+        ' Example of how to categorize based on chart of account ranges or patterns
+        Select Case chartOfAccount
+            Case "Revenue"
+                GetAccountTypeByChart = "Revenue"
+            Case "Cost of Sales"
+                GetAccountTypeByChart = "Cost of Sales"
+            Case "General Administration"
+                GetAccountTypeByChart = "Expenses"
+        End Select
+        End Function
+        Sub CreateVerticalBalanceSheet()
+        Dim wsTrial As Worksheet
+        Dim wsBalanceSheet As Worksheet
+        Dim lastRow As Long
+        Dim rowBalanceSheet As Long
+        Dim totalfixedAssets As Double
+        Dim totalcurrentAssets As Double
+        Dim totalAssets As Double
+        Dim totallongtermLiabilities As Double
+        Dim totalcurrentLiabilities As Double
+        Dim totalLiabilities As Double
+        Dim totalEquity As Double
+        Dim totalRevenue As Double
+        Dim totalcostofsalesExpenses As Double
+        Dim totalgeneraladminExpenses As Double
+        Dim netProfit As Double
+        ' Set references to sheets
+        Set wsTrial = ThisWorkbook.Sheets("TrialBalance") ' Change to your Trial Balance sheet name
+        Set wsBalanceSheet = ThisWorkbook.Sheets("Balance Sheet") ' Change to the existing Balance Sheet sheet name
+        ' Clear the existing Balance Sheet contents before starting
+        wsBalanceSheet.Rows("3:" & wsBalanceSheet.Rows.Count).ClearContents
+        ' Add heading for the Balance Sheet
+        wsBalanceSheet.Cells(3, 1).Value = "Balance Sheet"
+        wsBalanceSheet.Cells(3, 2).Value = "As of: " & Date
+        rowBalanceSheet = 4 ' Start from row 4 on the Balance Sheet
+        ' Add Assets heading
+        wsBalanceSheet.Cells(rowBalanceSheet, 1).Value = "Assets"
+        wsBalanceSheet.Cells(rowBalanceSheet, 1).Font.Bold = True
+        rowBalanceSheet = rowBalanceSheet + 1
+        ' Add Fixed Assets heading
+        wsBalanceSheet.Cells(rowBalanceSheet, 1).Value = "Fixed Assets"
+        wsBalanceSheet.Cells(rowBalanceSheet, 1).Font.Bold = True
+        rowBalanceSheet = rowBalanceSheet + 1
+        ' Find the last row of the trial balance
+        lastRow = wsTrial.Cells(wsTrial.Rows.Count, 2).End(xlUp).Row
+        ' Loop through the trial balance and populate the balance sheet
+        Dim i As Long
+        For i = 4 To lastRow ' Assuming row 1 is headers
+        Dim accountName As String
+        Dim debitAmount As Double
+        Dim creditAmount As Double
+        Dim accountType As String
+        accountType = wsTrial.Cells(i, 2).Value ' Account name in column B
+        accountName = wsTrial.Cells(i, 3).Value ' Debit amount in column C
+        debitAmount = wsTrial.Cells(i, 4).Value ' Credit amount in column D
+        creditAmount = wsTrial.Cells(i, 5).Value ' Account type in column E
+        Select Case accountType
+            ' Fixed Assets
+            Case "Fixed Assets"
+                wsBalanceSheet.Cells(rowBalanceSheet, 1).Value = accountName
+                wsBalanceSheet.Cells(rowBalanceSheet, 2).Value = debitAmount - creditAmount
+                totalfixedAssets = totalfixedAssets + (debitAmount - creditAmount)
+                rowBalanceSheet = rowBalanceSheet + 1
+            wsBalanceSheet.Cells(rowBalanceSheet, 1).Value = "Total Fixed Assets"
+            wsBalanceSheet.Cells(rowBalanceSheet, 2).Value = totalfixedAssets
+            rowBalanceSheet = rowBalanceSheet + 1 
+            ' Current Assets
+            Case "Current Assets"
+                If wsBalanceSheet.Cells(rowBalanceSheet - 1, 1).Value <> "Current Assets" Then
+                    wsBalanceSheet.Cells(rowBalanceSheet, 1).Value = "Current Assets"
+                    wsBalanceSheet.Cells(rowBalanceSheet, 1).Font.Bold = True
+                    rowBalanceSheet = rowBalanceSheet + 1
+                End If
+                wsBalanceSheet.Cells(rowBalanceSheet, 1).Value = accountName
+                wsBalanceSheet.Cells(rowBalanceSheet, 2).Value = debitAmount - creditAmount
+                totalcurrentAssets = totalcurrentAssets + (debitAmount - creditAmount)
+                rowBalanceSheet = rowBalanceSheet + 1
+                wsBalanceSheet.Cells(rowBalanceSheet, 1).Value = "Total Current Assets"
+                wsBalanceSheet.Cells(rowBalanceSheet, 2).Value = totalcurrentAssets
+                rowBalanceSheet = rowBalanceSheet + 1
+                wsBalanceSheet.Cells(rowBalanceSheet, 1).Value = "Total Assets"
+                wsBalanceSheet.Cells(rowBalanceSheet, 2).Value = totalfixedAssets + totalcurrentAssets
+                rowBalanceSheet = rowBalanceSheet + 2 ' Leave space
+            ' Long-Term Liabilities
+              Case "Long term Liabilities"
+                If wsBalanceSheet.Cells(rowBalanceSheet - 1, 1).Value <> "Long term Liabilities" Then
+                    wsBalanceSheet.Cells(rowBalanceSheet, 1).Value = "Long term Liabilities"
+                    wsBalanceSheet.Cells(rowBalanceSheet, 1).Font.Bold = True
+                    rowBalanceSheet = rowBalanceSheet + 1
+                End If
+                wsBalanceSheet.Cells(rowBalanceSheet, 1).Value = accountName
+                wsBalanceSheet.Cells(rowBalanceSheet, 2).Value = creditAmount - debitAmount
+                totallongtermLiabilities = totallongtermLiabilities + (creditAmount - debitAmount)
+                rowBalanceSheet = rowBalanceSheet + 1
+                wsBalanceSheet.Cells(rowBalanceSheet, 1).Value = "Total Long-Term Liabilities"
+                wsBalanceSheet.Cells(rowBalanceSheet, 2).Value = totallongtermLiabilities
+                rowBalanceSheet = rowBalanceSheet + 1
+            ' Current Liabilities
+              Case "Current Liabilities"
+                If wsBalanceSheet.Cells(rowBalanceSheet - 1, 1).Value <> "Current Liabilities" Then
+                    wsBalanceSheet.Cells(rowBalanceSheet, 1).Value = "Current Liabilities"
+                    wsBalanceSheet.Cells(rowBalanceSheet, 1).Font.Bold = True
+                    rowBalanceSheet = rowBalanceSheet + 1
+                End If
+                wsBalanceSheet.Cells(rowBalanceSheet, 1).Value = accountName
+                wsBalanceSheet.Cells(rowBalanceSheet, 2).Value = creditAmount - debitAmount
+                totalcurrentLiabilities = totalcurrentLiabilities + (creditAmount - debitAmount)
+                rowBalanceSheet = rowBalanceSheet + 1
+                wsBalanceSheet.Cells(rowBalanceSheet, 1).Value = "Total Current Liabilities"
+                wsBalanceSheet.Cells(rowBalanceSheet, 2).Value = totalcurrentLiabilities
+                rowBalanceSheet = rowBalanceSheet + 1  
+                wsBalanceSheet.Cells(rowBalanceSheet, 1).Value = "Total Liabilities"
+                wsBalanceSheet.Cells(rowBalanceSheet, 2).Value = totallongtermLiabilities + totalcurrentLiabilities
+                rowBalanceSheet = rowBalanceSheet + 2 ' Leave space
+            ' Equity
+              Case "Capital"
+                If wsBalanceSheet.Cells(rowBalanceSheet - 1, 1).Value <> "Capital" Then
+                    rowBalanceSheet = rowBalanceSheet + 1
+                    wsBalanceSheet.Cells(rowBalanceSheet, 1).Value = "Capital"
+                    wsBalanceSheet.Cells(rowBalanceSheet, 1).Font.Bold = True
+                    rowBalanceSheet = rowBalanceSheet + 1
+                End If
+                wsBalanceSheet.Cells(rowBalanceSheet, 1).Value = accountName
+                wsBalanceSheet.Cells(rowBalanceSheet, 2).Value = creditAmount - debitAmount
+                totalEquity = totalEquity + (creditAmount - debitAmount)
+                rowBalanceSheet = rowBalanceSheet + 1
+            ' Revenue and Expense for Net Profit calculation
+            Case "Revenue"
+                totalRevenue = totalRevenue + (creditAmount - debitAmount)
+            Case "Cost of Sales"
+                totalcostofsalesExpenses = totalcostofsalesExpenses + (debitAmount - creditAmount)
+            Case "General Administration"
+                totalgeneraladminExpenses = totalgeneraladminExpenses + (debitAmount - creditAmount)
+            End Select
+        Next i
+        ' Calculate Net Profit (Revenue - Expenses)
+        netProfit = totalRevenue - totalgeneraladminExpenses - totalcostofsalesExpenses
+        ' Add Net Profit to the Equity section
+        totalEquity = totalEquity + netProfit
+        ' Display Net Profit under Equity
+        wsBalanceSheet.Cells(rowBalanceSheet, 1).Value = "Net Profit"
+        wsBalanceSheet.Cells(rowBalanceSheet, 2).Value = netProfit
+         ' Move to the next row to add totals and labels
+        rowBalanceSheet = rowBalanceSheet + 1
+        wsBalanceSheet.Cells(rowBalanceSheet, 1).Value = "Total Liabilities & Equity"
+        wsBalanceSheet.Cells(rowBalanceSheet, 2).Value = totalEquity + totallongtermLiabilities + totalcurrentLiabilities
+      End Sub
 
 
     
