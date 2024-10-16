@@ -13,10 +13,10 @@ The objective of this project is to develop an automated financial accounting sy
 - General Ledger
   <img src="https://github.com/Gideon-Mensah/fmexcelaccount/blob/main/General%20Ledger.jpg">
 - Trial Balance
-  <img src="https://github.com/Gideon-Mensah/fmexcelaccount/blob/main/General%20Ledger.jpg">
+  <img src="https://github.com/Gideon-Mensah/fmexcelaccount/blob/main/Trial%20Balance.jpg">
 - Income Statement
-  <img src="https://github.com/Gideon-Mensah/fmexcelaccount/blob/main/General%20Ledger.jpg">
+  <img src="https://github.com/Gideon-Mensah/fmexcelaccount/blob/main/Income%20Statement.jpg">
 - Balance Sheet
-  <img src="https://github.com/Gideon-Mensah/fmexcelaccount/blob/main/General%20Ledger.jpg">
+  <img src="https://github.com/Gideon-Mensah/fmexcelaccount/blob/main/Balance%20Sheet.jpg">
   
 
