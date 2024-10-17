@@ -421,6 +421,32 @@ This model utilizes VBA, so you'll need to enable the Developer tab in Excel to 
         wsBalanceSheet.Cells(rowBalanceSheet, 1).Value = "Total Liabilities & Equity"
         wsBalanceSheet.Cells(rowBalanceSheet, 2).Value = totalEquity + totallongtermLiabilities + totalcurrentLiabilities
       End Sub
+  
+  - ### Code for navigating in and out of the various sheets (NB: Sample for one navigation. the excel file contain all the codes)
+        Dim sheetName As String
+        sheetName = "Profit or Loss ac" 'Replace "Sheet1" with the exact name of your sheet
+        ' Check if the sheet exists before trying to unhide it
+        Dim ws As Worksheet
+        On Error Resume Next
+        Set ws = Sheets(sheetName)
+        On Error GoTo 0
+        If Not ws Is Nothing Then
+            ' If the sheet exists, make it visible
+            ws.Visible = True
+            ws.Activate
+        Else
+            MsgBox "Sheet '" & sheetName & "' does not exist.", vbExclamation, "Error"
+        End If
+
+    - ### Code for disabling worksheet tab and fomular bar
+           Application.DisplayFormulaBar = False
+           ActiveWindow.DisplayWorkbookTabs = False
+      
+    ## Conculsion
+
+    This Excel-based financial accounting system, incorporating automated processes for transaction entry and financial statement generation, is designed to enhance efficiency and accuracy in managing financial data. With the use of VBA, the model streamlines the workflow from recording transactions to producing the General Ledger, Trial Balance, Profit & Loss Account, and Balance Sheet. The full project, including the VBA code and documentation, has been made publicly available on GitHub, allowing others to review, use, and further develop the model for their own needs.
+
+
 
 
     
